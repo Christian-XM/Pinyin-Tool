@@ -291,15 +291,31 @@
             outputArea.innerHTML = html;
         }
 
-        // 选词同步逻辑
-        document.addEventListener('mouseup', () => {
-            const selection = window.getSelection();
-            const text = selection.toString().trim();
-            // 确保只在结果区域选词才同步
-            if (text && outputArea.contains(selection.anchorNode)) {
-                searchInput.value = text;
-            }
-        });
+        // 选词同步逻辑 (优化移动端支持)
+        let selectionTimeout;
+        const handleSelection = () => {
+            clearTimeout(selectionTimeout);
+            selectionTimeout = setTimeout(() => {
+                const selection = window.getSelection();
+                const text = selection.toString().trim();
+                
+                // 检查选中的文字是否在输出区域内
+                if (text && outputArea.contains(selection.anchorNode)) {
+                    // 只提取汉字部分，过滤掉可能的拼音干扰
+                    const chineseOnly = text.match(/[\u4e00-\u9fa5]+/g);
+                    if (chineseOnly) {
+                        searchInput.value = chineseOnly.join('');
+                    } else {
+                        searchInput.value = text;
+                    }
+                }
+            }, 150); // 防抖，避免选词过程频繁闪烁
+        };
+
+        // 监听多种事件确保移动端兼容性
+        document.addEventListener('selectionchange', handleSelection);
+        document.addEventListener('mouseup', handleSelection);
+        document.addEventListener('touchend', handleSelection);
 
         function copyContent() {
             const text = inputArea.value;
@@ -326,11 +342,9 @@
                 let formattedPyLine = pyLine.trim();
 
                 // 执行逻辑：在拼音和数字之间添加空格 (P-D 和 D-P)
-                // 1. 拼音后接数字
                 const pdRegex = new RegExp(`(${pSet})(${dSet})`, 'g');
                 formattedPyLine = formattedPyLine.replace(pdRegex, '$1 $2');
                 
-                // 2. 数字后接拼音
                 const dpRegex = new RegExp(`(${dSet})(${pSet})`, 'g');
                 formattedPyLine = formattedPyLine.replace(dpRegex, '$1 $2');
 
