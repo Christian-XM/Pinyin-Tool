@@ -55,4 +55,4 @@ Since this is a static single-page application, no installation is required.
 
 ## Todo List
 
-- [] null
+- [ ]  null
