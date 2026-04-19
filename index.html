@@ -323,8 +323,8 @@
             let copyText = "";
             
             // 定义拼音(P)和数字(D)的正则表达式
-            const pSet = "[a-zA-Zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜńňǹḿ]";
-            const dSet = "[0-9]";
+            const pSet = "a-zA-Zāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜńňǹḿ";
+            const dSet = "0-9";
             
             text.split('\n').forEach(p => {
                 if (!p.trim()) return;
@@ -342,10 +342,12 @@
                 let formattedPyLine = pyLine.trim();
 
                 // 执行逻辑：在拼音和数字之间添加空格 (P-D 和 D-P)
-                const pdRegex = new RegExp(`(${pSet})(${dSet})`, 'g');
+                // 拼音后跟数字 (P-D)
+                const pdRegex = new RegExp(`([${pSet}])([${dSet}])`, 'g');
                 formattedPyLine = formattedPyLine.replace(pdRegex, '$1 $2');
                 
-                const dpRegex = new RegExp(`(${dSet})(${pSet})`, 'g');
+                // 数字后跟拼音 (D-P)
+                const dpRegex = new RegExp(`([${dSet}])([${pSet}])`, 'g');
                 formattedPyLine = formattedPyLine.replace(dpRegex, '$1 $2');
 
                 copyText += `${formattedPyLine}\n${cnLine.trim()}\n\n`;
