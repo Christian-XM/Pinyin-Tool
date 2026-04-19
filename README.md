@@ -1,59 +1,30 @@
-# Pinyin Tool (汉字注音工具)
+# 🤝 Strumento Pinyin (Pinyin Tool)
 
-A lightweight, elegant, and privacy-focused web application designed to convert Chinese characters into Pinyin with tone marks. This tool is ideal for Chinese language learners, teachers, and content creators.
+Un applicativo web leggero e moderno per convertire i caratteri cinesi in Pinyin con toni, progettato per studenti e appassionati della lingua cinese.
 
-## ✨ Features
+## ✨ Funzionalità
 
-- **Dual Visualization Modes**:
-    
-    - **Split Mode**: Pinyin and Hanzi are displayed in separate, alternating lines for better readability in paragraphs.
-        
-    - **Ruby Mode**: Pinyin is placed directly above each individual character using the HTML `<ruby>` tag.
-        
-- **Multilingual UI**: Supports **Chinese (Simplified)**, **English**, and **Italian** interfaces.
-    
-- **Real-time Conversion**: See results instantly as you type.
-    
-- **One-Click Copy**: Easily copy formatted results (text-based representation) to your clipboard.
-    
-- **Responsive Design**: Modern Glassmorphism UI that works perfectly on desktops, tablets, and mobile devices.
-    
-- **Offline Capable**: Once loaded, all conversion logic happens locally in your browser.
-    
+* **Conversione Istantanea**: Inserisci i caratteri cinesi e visualizza immediatamente il Pinyin sopra ogni carattere (formato `<ruby>`).
+* **Ricerca Integrata**: Seleziona qualsiasi carattere nell'area dei risultati per cercarlo automaticamente nei principali dizionari (Yihan, DeepL, Cambridge, Zdic, ecc.).
+* **Copia Formattata**: Pulsante dedicato per copiare il testo nel formato "Pinyin + Caratteri", ideale per creare appunti o flashcard.
+* **Privacy First**: Tutto il processo avviene localmente nel browser. Nessun dato viene inviato a server esterni.
+* **Design Moderno**: Interfaccia pulita, responsive e con effetto Glassmorphism.
 
-## 🚀 Tech Stack
+## 🛠️ Tech Stack
 
-- **Frontend**: HTML5, CSS3 (Glassmorphism, Flexbox, CSS Variables), Vanilla JavaScript.
-    
-- **Pinyin Engine**: [pinyin-pro](https://unpkg.com/pinyin-pro@3.28.1/dist/index.js) - A high-performance, accurate Pinyin conversion library.
-    
-- **Deployment**: Hosted on GitHub Pages (Static site).
-    
+* **HTML5 / CSS3**: Layout moderno con variabili CSS e Flexbox.
+* **JavaScript (ES6+)**: Logica di gestione DOM e integrazione API.
+* **[Pinyin-pro](https://github.com/zh-fe/pinyin-pro)**: Libreria ad alte prestazioni per la conversione accurata dei caratteri.
 
-## 🔒 Privacy & Data
+## 🚀 Utilizzo Rapido
 
-- **Zero Data Collection**: We do not collect, store, or transmit any text you input. All processing is done locally in your browser.
-    
-- **No Backend**: This project has no backend server or database.
-    
-- **Local Storage**: We only save your language and mode preferences in your browser's `localStorage` for a consistent experience.
-    
+1. Clona la repository o scarica il file `index.html`.
+2. Apri il file `index.html` in qualsiasi browser moderno.
+3. Incolla il testo cinese nell'area di input superiore.
+4. (Opzionale) Seleziona una parola nei risultati per approfondire la ricerca nel dizionario scelto nella barra superiore.
 
-## 🛠️ Installation & Usage
+## 📁 Struttura Progetto
 
-Since this is a static single-page application, no installation is required.
-
-1. Clone the repository:
-    
-    ```
-    git clone https://github.com/Christian-XM/Pinyin-Tool.git
-    ```
-    
-2. Open `index.html` in any modern web browser.
-    
-3. Or visit the live site: [https://christian-xm.github.io/Pinyin-Tool/](https://christian-xm.github.io/Pinyin-Tool/)
-
-## Todo List
-
-- 不打算添加词典，可以使用其他APP查询单词意思。
-- [ ]  null
+```text
+.
+└── index.html   # File unico contenente struttura, stili e logica.
