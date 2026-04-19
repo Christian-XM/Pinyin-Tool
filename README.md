@@ -55,4 +55,5 @@ Since this is a static single-page application, no installation is required.
 
 ## Todo List
 
+- 不打算添加词典，可以使用其他APP查询单词意思。
 - [ ]  null
