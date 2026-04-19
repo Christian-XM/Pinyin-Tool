@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>汉字拼音注音器 - 简洁优雅版</title>
+    <!-- 引入 pinyin-pro 库 -->
+    <script src="https://unpkg.com/pinyin-pro"></script>
+    <style>
+        :root {
+            --primary-color: #92A8D1; /* 经典 Serenity 色调 */
+            --primary-light: rgba(146, 168, 209, 0.15);
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.3);
+            --text-color: #33475b;
+            --success-color: #7FB069;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg-gradient);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            max-width: 850px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.7), var(--primary-light));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 28px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.08);
+            padding: 40px;
+            transition: transform 0.3s ease;
+        }
+
+        .controls-header {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .dropdown-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.4);
+            padding: 6px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .control-select {
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            outline: none;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+            color: var(--primary-color);
+            font-weight: 700;
+            text-align: center;
+            font-size: 2.2rem;
+        }
+
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .mode-btn {
+            padding: 10px 24px;
+            border-radius: 20px;
+            border: 1.5px solid var(--primary-color);
+            background: transparent;
+            color: var(--primary-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .mode-btn.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 15px var(--primary-light);
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.4);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 18px;
+            font-size: 16px;
+            color: var(--text-color);
+            outline: none;
+            transition: all 0.3s ease;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            background: rgba(255, 255, 255, 0.6);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px var(--primary-light);
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+        }
+
+        .copy-btn {
+            background: var(--primary-color);
+            border: none;
+            border-radius: 10px;
+            padding: 8px 18px;
+            font-size: 13px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .copy-btn:hover {
+            filter: brightness(1.05);
+            transform: translateY(-1px);
+        }
+
+        .copy-btn.copied {
+            background: var(--success-color);
+        }
+
+        .output-section {
+            min-height: 250px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+
+        .output-ruby {
+            line-height: 3.5;
+            text-align: left;
+        }
+
+        .output-ruby ruby {
+            ruby-align: center;
+            margin: 0 6px;
+            font-size: 26px;
+        }
+
+        .output-ruby rt {
+            font-size: 15px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .output-split {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .pinyin-line {
+            font-size: 17px;
+            color: var(--primary-color);
+            font-weight: 600;
+            letter-spacing: 2px;
+            line-height: 1.4;
+            margin-bottom: 6px;
+        }
+
+        .hanzi-line {
+            font-size: 24px;
+            letter-spacing: 4px;
+            line-height: 1.4;
+            color: var(--text-color);
+        }
+
+        .placeholder {
+            color: #99aab5;
+            text-align: center;
+            margin-top: 80px;
+            display: block;
+            width: 100%;
+        }
+
+        /* 底部说明分栏样式 */
+        .info-section {
+            margin-top: 30px;
+            border-top: 1px dashed var(--primary-color);
+            padding-top: 20px;
+        }
+
+        details {
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        summary {
+            padding: 12px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--primary-color);
+            outline: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        summary:hover {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        .details-content {
+            padding: 15px 20px;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #5a6a85;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .details-content p {
+            margin-bottom: 10px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.5;
+            letter-spacing: 0.5px;
+        }
+        
+        @media (max-width: 600px) {
+            .container { padding: 25px 20px; }
+            .output-ruby ruby { font-size: 22px; }
+            .hanzi-line { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="controls-header">
+            <div class="dropdown-wrapper">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                <select id="langSelect" class="control-select" onchange="handleLangChange()">
+                    <option value="zh">中文</option>
+                    <option value="en">English</option>
+                    <option value="it">Italiano</option>
+                </select>
+            </div>
+        </div>
+
+        <h1 id="ui-title">汉字注音工具</h1>
+        
+        <div class="mode-selector">
+            <button id="btn-mode-split" class="mode-btn" onclick="setMode('split')">分行模式</button>
+            <button id="btn-mode-ruby" class="mode-btn" onclick="setMode('ruby')">注音模式</button>
+        </div>
+
+        <div class="input-section">
+            <textarea id="inputArea" placeholder="在此输入汉字..."></textarea>
+        </div>
+
+        <div class="action-bar">
+            <button id="copyBtn" class="copy-btn" onclick="copyContent()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span id="ui-copy">复制结果</span>
+            </button>
+        </div>
+
+        <div id="outputArea" class="output-section">
+            <span class="placeholder" id="ui-placeholder">转换结果将在此实时显示...</span>
+        </div>
+
+        <!-- 底部说明区域 -->
+        <div class="info-section">
+            <details>
+                <summary id="ui-faq-modes">📖 模式说明：分行 vs 注音</summary>
+                <div class="details-content" id="ui-faq-modes-content">
+                    <p><strong>分行模式：</strong>将拼音与汉字完全分离。上方为整行拼音，下方为对应汉字。适合长篇阅读或朗诵练习，视觉上更加整洁。</p>
+                    <p><strong>注音模式：</strong>采用 HTML5 的 Ruby 标签标准。拼音会紧贴在每个汉字的正上方。适合学习生僻字或精细标注，符合字典排版习惯。</p>
+                </div>
+            </details>
+
+            <details>
+                <summary id="ui-faq-privacy">🔒 隐私与安全说明</summary>
+                <div class="details-content" id="ui-faq-privacy-content">
+                    <p><strong>数据处理：</strong>本工具为纯前端应用。所有的汉字转拼音逻辑均通过浏览器本地的 JavaScript (pinyin-pro 库) 完成。<strong>您的任何输入内容都不会上传到服务器。</strong></p>
+                    <p><strong>部署信息：</strong>网站部署于 <strong>GitHub Pages</strong>。GitHub 仅提供静态文件托管，由于本站没有任何后端 API 或数据库，您的隐私在物理架构上是绝对安全的。</p>
+                    <p><strong>缓存说明：</strong>本站仅在您的浏览器 <code>localStorage</code> 中存储以下两项信息，以便下次访问时恢复您的偏好：
+                        <br>1. <code>pinyin_lang_pref</code> (您的界面语言选择)
+                        <br>2. <code>pinyin_mode_pref</code> (您偏好的显示模式)
+                    </p>
+                </div>
+            </details>
+        </div>
+
+        <div class="footer">
+            <span id="ui-footer-text">Serenity 优雅配色注音器</span>
+        </div>
+    </div>
+
+    <!-- 用于复制的隐藏域 -->
+    <textarea id="tempCopyArea" style="position:fixed;top:-9999px;left:-9999px;"></textarea>
+
+    <script>
+        const inputArea = document.getElementById('inputArea');
+        const outputArea = document.getElementById('outputArea');
+        const langSelect = document.getElementById('langSelect');
+        const copyBtn = document.getElementById('copyBtn');
+        const uiCopyText = document.getElementById('ui-copy');
+        const tempCopyArea = document.getElementById('tempCopyArea');
+        
+        const { pinyin } = pinyinPro;
+        let currentMode = 'split'; 
+        let currentLang = 'zh'; 
+
+        const translations = {
+            zh: {
+                title: "汉字注音工具",
+                modeRuby: "注音模式",
+                modeSplit: "分行模式",
+                placeholderInput: "在此输入汉字...",
+                placeholderOutput: "转换结果将在此实时显示",
+                footer: "Serenity 优雅配色注音器",
+                copy: "复制结果",
+                copied: "已复制！",
+                faqModes: "📖 模式说明：分行 vs 注音",
+                faqPrivacy: "🔒 隐私与安全说明",
+                faqModesContent: `<p><strong>分行模式：</strong>将拼音与汉字完全分离。上方为整行拼音，下方为对应汉字。适合长篇阅读或朗诵练习。</p><p><strong>注音模式：</strong>拼音会紧贴在每个汉字的正上方。适合学习生僻字或精细标注。</p>`,
+                faqPrivacyContent: `<p><strong>数据处理：</strong>本工具承诺<strong>不收集</strong>任何用户数据。转换逻辑在浏览器本地完成。</p><p><strong>部署信息：</strong>部署于 GitHub Pages，无后端服务器。仅在浏览器本地缓存您的语言偏好和模式选择。</p>`
+            },
+            en: {
+                title: "Chinese Pinyin Tool",
+                modeRuby: "Ruby Mode",
+                modeSplit: "Split Mode",
+                placeholderInput: "Type Chinese here...",
+                placeholderOutput: "Results will be displayed here in real-time",
+                footer: "Elegant Serenity Pinyin Tool",
+                copy: "Copy Result",
+                copied: "Copied!",
+                faqModes: "📖 Modes: Split vs Ruby",
+                faqPrivacy: "🔒 Privacy & Security",
+                faqModesContent: `<p><strong>Split Mode:</strong> Separates Pinyin and Characters into different lines. Great for long readings.</p><p><strong>Ruby Mode:</strong> Pinyin is placed directly above each character. Ideal for learning specific words.</p>`,
+                faqPrivacyContent: `<p><strong>Data:</strong> We <strong>DO NOT</strong> collect any data. Processing is done locally in your browser.</p><p><strong>Deployment:</strong> Hosted on GitHub Pages. We only cache your language and mode preferences locally.</p>`
+            },
+            it: {
+                title: "Pinyin Cinese",
+                modeRuby: "Modalità Ruby",
+                modeSplit: "Modalità Divisa",
+                placeholderInput: "Inserisci caratteri cinesi...",
+                placeholderOutput: "I risultati verranno visualizzati in tempo reale",
+                footer: "Strumento elegante Serenity",
+                copy: "Copia",
+                copied: "Copiato!",
+                faqModes: "📖 Modalità: Divisa vs Ruby",
+                faqPrivacy: "🔒 Privacy e Sicurezza",
+                faqModesContent: `<p><strong>Modalità Divisa:</strong> Separa Pinyin e caratteri. Ottimo per letture lunghe.</p><p><strong>Modalità Ruby:</strong> Il Pinyin è posto sopra ogni carattere. Ideale per l'apprendimento.</p>`,
+                faqPrivacyContent: `<p><strong>Dati:</strong> <strong>NON</strong> raccogliamo dati. L'elaborazione avviene localmente nel browser.</p><p><strong>Hosting:</strong> Ospitato su GitHub Pages. Salviamo solo le tue preferenze di lingua e modalità nel browser.</p>`
+            }
+        };
+
+        function handleLangChange() {
+            currentLang = langSelect.value;
+            localStorage.setItem('pinyin_lang_pref', currentLang);
+            updateUI();
+        }
+
+        function updateUI() {
+            const t = translations[currentLang];
+            document.getElementById('ui-title').innerText = t.title;
+            document.getElementById('btn-mode-ruby').innerText = t.modeRuby;
+            document.getElementById('btn-mode-split').innerText = t.modeSplit;
+            document.getElementById('inputArea').placeholder = t.placeholderInput;
+            document.getElementById('ui-footer-text').innerText = t.footer;
+            document.getElementById('ui-faq-modes').innerText = t.faqModes;
+            document.getElementById('ui-faq-privacy').innerText = t.faqPrivacy;
+            document.getElementById('ui-faq-modes-content').innerHTML = t.faqModesContent;
+            document.getElementById('ui-faq-privacy-content').innerHTML = t.faqPrivacyContent;
+            uiCopyText.innerText = t.copy;
+            
+            updateOutput();
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            localStorage.setItem('pinyin_mode_pref', mode);
+            
+            document.getElementById('btn-mode-ruby').classList.toggle('active', mode === 'ruby');
+            document.getElementById('btn-mode-split').classList.toggle('active', mode === 'split');
+            outputArea.className = `output-section output-${mode}`;
+            updateOutput();
+        }
+
+        function updateOutput() {
+            const text = inputArea.value.trim();
+            if (!text) {
+                outputArea.innerHTML = `<span class="placeholder">${translations[currentLang].placeholderOutput}</span>`;
+                return;
+            }
+            if (currentMode === 'ruby') renderRuby(text);
+            else renderSplit(text);
+        }
+
+        function renderRuby(text) {
+            const chars = text.split('');
+            let html = '';
+            chars.forEach(char => {
+                if (/[\u4e00-\u9fa5]/.test(char)) {
+                    const py = pinyin(char, { toneType: 'symbol' });
+                    html += `<ruby>${char}<rt>${py}</rt></ruby>`;
+                } else if (char === '\n') {
+                    html += '<br>';
+                } else {
+                    html += `<span>${char}</span>`;
+                }
+            });
+            outputArea.innerHTML = html;
+        }
+
+        function renderSplit(text) {
+            const paragraphs = text.split('\n');
+            let html = '';
+            paragraphs.forEach(para => {
+                if (!para.trim()) return;
+                let pl = '', hl = '';
+                para.split('').forEach(char => {
+                    if (/[\u4e00-\u9fa5]/.test(char)) {
+                        pl += pinyin(char, { toneType: 'symbol' }) + ' ';
+                        hl += char;
+                    } else {
+                        pl += char + ' ';
+                        hl += char;
+                    }
+                });
+                html += `<div class="split-paragraph"><div class="pinyin-line">${pl.trim()}</div><div class="hanzi-line">${hl}</div></div>`;
+            });
+            outputArea.innerHTML = html;
+        }
+
+        function copyContent() {
+            const text = inputArea.value.trim();
+            if (!text) return;
+            let copyText = "";
+            if (currentMode === 'ruby') {
+                text.split('').forEach(char => {
+                    if (/[\u4e00-\u9fa5]/.test(char)) copyText += `${char}(${pinyin(char, { toneType: 'symbol' })})`;
+                    else copyText += char;
+                });
+            } else {
+                text.split('\n').forEach(p => {
+                    if(!p.trim()) return;
+                    let lineP = '', lineH = '';
+                    p.split('').forEach(c => {
+                        if (/[\u4e00-\u9fa5]/.test(c)) { lineP += pinyin(c, { toneType: 'symbol' }) + ' '; lineH += c; }
+                        else { lineP += c + ' '; lineH += c; }
+                    });
+                    copyText += `${lineP.trim()}\n${lineH}\n\n`;
+                });
+            }
+            tempCopyArea.value = copyText.trim();
+            tempCopyArea.select();
+            document.execCommand('copy');
+            copyBtn.classList.add('copied');
+            uiCopyText.innerText = translations[currentLang].copied;
+            setTimeout(() => {
+                copyBtn.classList.remove('copied');
+                uiCopyText.innerText = translations[currentLang].copy;
+            }, 2000);
+        }
+
+        inputArea.addEventListener('input', updateOutput);
+
+        window.onload = () => {
+            const savedLang = localStorage.getItem('pinyin_lang_pref') || 'zh';
+            langSelect.value = savedLang;
+            currentLang = savedLang;
+
+            const savedMode = localStorage.getItem('pinyin_mode_pref') || 'split';
+            
+            updateUI();
+            setMode(savedMode);
+        };
+    </script>
+</body>
+</html>
