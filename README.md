@@ -25,7 +25,7 @@ A lightweight, elegant, and privacy-focused web application designed to convert 
 
 - **Frontend**: HTML5, CSS3 (Glassmorphism, Flexbox, CSS Variables), Vanilla JavaScript.
     
-- **Pinyin Engine**: [pinyin-pro](https://www.google.com/search?q=https://github.com/zh-plus/pinyin-pro "null") - A high-performance, accurate Pinyin conversion library.
+- **Pinyin Engine**: [pinyin-pro](https://unpkg.com/pinyin-pro@3.28.1/dist/index.js) - A high-performance, accurate Pinyin conversion library.
     
 - **Deployment**: Hosted on GitHub Pages (Static site).
     
