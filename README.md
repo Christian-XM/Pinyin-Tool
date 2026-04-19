@@ -51,7 +51,7 @@ Since this is a static single-page application, no installation is required.
     
 2. Open `index.html` in any modern web browser.
     
-3. Or visit the live site: [https://christian-xm.github.io/Pinyin-Tool/](https://www.google.com/search?q=https://christian-xm.github.io/Pinyin-Tool/ "null")
+3. Or visit the live site: [https://christian-xm.github.io/Pinyin-Tool/](https://christian-xm.github.io/Pinyin-Tool/)
 
 ## Todo List
 
