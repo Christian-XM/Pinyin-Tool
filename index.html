@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>汉字注音工具</title>
+    <!-- 仅在浏览器标签页显示 🤝 Emoji 图标 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤝</text></svg>">
     <!-- 引入 pinyin-pro 库 -->
     <script src="https://unpkg.com/pinyin-pro"></script>
     <style>
@@ -52,6 +54,9 @@
             display: flex;
             justify-content: flex-end;
             margin-bottom: 20px;
+            position: absolute;
+            top: 30px;
+            right: 30px;
         }
 
         .dropdown-wrapper {
@@ -75,11 +80,13 @@
         }
 
         h1 {
-            margin-bottom: 25px;
+            margin-top: 10px;
+            margin-bottom: 30px;
             color: var(--primary-color);
             font-weight: 700;
             text-align: center;
             font-size: 2.2rem;
+            letter-spacing: 1px;
         }
 
         .mode-selector {
@@ -268,6 +275,7 @@
         
         @media (max-width: 600px) {
             .container { padding: 25px 20px; }
+            .controls-header { position: static; justify-content: flex-end; margin-bottom: 10px; }
             .output-ruby ruby { font-size: 22px; }
             .hanzi-line { font-size: 20px; }
         }
@@ -286,6 +294,8 @@
                 </select>
             </div>
         </div>
+
+        <!-- 移除了页面内的 logo-container，保持干净 -->
 
         <h1 id="ui-title">汉字注音工具</h1>
         

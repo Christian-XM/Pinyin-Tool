@@ -46,7 +46,7 @@ Since this is a static single-page application, no installation is required.
 1. Clone the repository:
     
     ```
-    git clone [https://github.com/Christian-XM/Pinyin-Tool.git](https://github.com/Christian-XM/Pinyin-Tool.git)
+    git clone https://github.com/Christian-XM/Pinyin-Tool.git
     ```
     
 2. Open `index.html` in any modern web browser.
