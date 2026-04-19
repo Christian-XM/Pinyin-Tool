@@ -178,6 +178,7 @@
         .output-ruby {
             line-height: 3.5;
             text-align: left;
+            word-break: break-word;
         }
 
         .output-ruby ruby {
@@ -205,6 +206,7 @@
             letter-spacing: 2px;
             line-height: 1.4;
             margin-bottom: 6px;
+            word-break: break-word;
         }
 
         .hanzi-line {
@@ -212,6 +214,7 @@
             letter-spacing: 4px;
             line-height: 1.4;
             color: var(--text-color);
+            word-break: break-word;
         }
 
         .placeholder {
@@ -294,8 +297,6 @@
                 </select>
             </div>
         </div>
-
-        <!-- 移除了页面内的 logo-container，保持干净 -->
 
         <h1 id="ui-title">汉字注音工具</h1>
         
@@ -431,9 +432,13 @@
             updateOutput();
         }
 
+        function tokenize(text) {
+            return text.match(/[\u4e00-\u9fa5]|[^\u4e00-\u9fa5]+/g) || [];
+        }
+
         function updateOutput() {
-            const text = inputArea.value.trim();
-            if (!text) {
+            const text = inputArea.value; 
+            if (!text || text.trim() === "") {
                 outputArea.innerHTML = `<span class="placeholder">${translations[currentLang].placeholderOutput}</span>`;
                 return;
             }
@@ -442,16 +447,16 @@
         }
 
         function renderRuby(text) {
-            const chars = text.split('');
+            const tokens = tokenize(text);
             let html = '';
-            chars.forEach(char => {
-                if (/[\u4e00-\u9fa5]/.test(char)) {
-                    const py = pinyin(char, { toneType: 'symbol' });
-                    html += `<ruby>${char}<rt>${py}</rt></ruby>`;
-                } else if (char === '\n') {
-                    html += '<br>';
+            tokens.forEach(token => {
+                if (/[\u4e00-\u9fa5]/.test(token)) {
+                    const py = pinyin(token, { toneType: 'symbol' });
+                    html += `<ruby>${token}<rt>${py}</rt></ruby>`;
                 } else {
-                    html += `<span>${char}</span>`;
+                    // 正则：连续空格转为单一空格
+                    const cleanedToken = token.replace(/\s+/g, ' ');
+                    html += `<span>${cleanedToken.replace(/\n/g, '<br>')}</span>`;
                 }
             });
             outputArea.innerHTML = html;
@@ -461,42 +466,65 @@
             const paragraphs = text.split('\n');
             let html = '';
             paragraphs.forEach(para => {
-                if (!para.trim()) return;
+                if (para === "") { 
+                     html += '<div style="height:1.5em"></div>';
+                     return;
+                }
                 let pl = '', hl = '';
-                para.split('').forEach(char => {
-                    if (/[\u4e00-\u9fa5]/.test(char)) {
-                        pl += pinyin(char, { toneType: 'symbol' }) + ' ';
-                        hl += char;
+                const tokens = tokenize(para);
+                tokens.forEach((token) => {
+                    if (/[\u4e00-\u9fa5]/.test(token)) {
+                        const py = pinyin(token, { toneType: 'symbol' });
+                        hl += token;
+                        pl += py + ' ';
                     } else {
-                        pl += char + ' ';
-                        hl += char;
+                        // 正则：非汉字部分的连续空格转为单一空格
+                        const cleanedToken = token.replace(/\s+/g, ' ');
+                        pl += cleanedToken;
+                        hl += cleanedToken;
                     }
                 });
-                html += `<div class="split-paragraph"><div class="pinyin-line">${pl.trim()}</div><div class="hanzi-line">${hl}</div></div>`;
+                // 再次全局清理拼音行的冗余空格
+                const finalPl = pl.replace(/\s+/g, ' ').trim();
+                const finalHl = hl.replace(/\s+/g, ' ').trim();
+                html += `<div class="split-paragraph"><div class="pinyin-line">${finalPl}</div><div class="hanzi-line">${finalHl}</div></div>`;
             });
             outputArea.innerHTML = html;
         }
 
         function copyContent() {
-            const text = inputArea.value.trim();
-            if (!text) return;
+            const text = inputArea.value;
+            if (!text || text.trim() === "") return;
             let copyText = "";
+            const tokens = tokenize(text);
+
             if (currentMode === 'ruby') {
-                text.split('').forEach(char => {
-                    if (/[\u4e00-\u9fa5]/.test(char)) copyText += `${char}(${pinyin(char, { toneType: 'symbol' })})`;
-                    else copyText += char;
+                tokens.forEach(token => {
+                    if (/[\u4e00-\u9fa5]/.test(token)) {
+                        copyText += `${token}(${pinyin(token, { toneType: 'symbol' })})`;
+                    } else {
+                        copyText += token.replace(/\s+/g, ' ');
+                    }
                 });
             } else {
                 text.split('\n').forEach(p => {
-                    if(!p.trim()) return;
+                    if (p.trim() === "") return;
                     let lineP = '', lineH = '';
-                    p.split('').forEach(c => {
-                        if (/[\u4e00-\u9fa5]/.test(c)) { lineP += pinyin(c, { toneType: 'symbol' }) + ' '; lineH += c; }
-                        else { lineP += c + ' '; lineH += c; }
+                    const pTokens = tokenize(p);
+                    pTokens.forEach((t) => {
+                        if (/[\u4e00-\u9fa5]/.test(t)) { 
+                            lineP += pinyin(t, { toneType: 'symbol' }) + ' ';
+                            lineH += t;
+                        } else { 
+                            const ct = t.replace(/\s+/g, ' ');
+                            lineP += ct; 
+                            lineH += ct; 
+                        }
                     });
-                    copyText += `${lineP.trim()}\n${lineH}\n\n`;
+                    copyText += `${lineP.replace(/\s+/g, ' ').trim()}\n${lineH.replace(/\s+/g, ' ').trim()}\n\n`;
                 });
             }
+            
             tempCopyArea.value = copyText.trim();
             tempCopyArea.select();
             document.execCommand('copy');
