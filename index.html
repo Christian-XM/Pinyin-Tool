@@ -4,27 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>汉字注音工具</title>
-    <!-- 仅在浏览器标签页显示 🤝 Emoji 图标 -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤝</text></svg>">
-    <!-- 引入 pinyin-pro 库 -->
     <script src="https://unpkg.com/pinyin-pro"></script>
     <style>
         :root {
-            --primary-color: #92A8D1; /* 经典 Serenity 色调 */
+            --primary-color: #92A8D1;
             --primary-light: rgba(146, 168, 209, 0.15);
             --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             --glass-bg: rgba(255, 255, 255, 0.6);
             --glass-border: rgba(255, 255, 255, 0.3);
             --text-color: #33475b;
             --success-color: #7FB069;
+            --poly-color: #F7CAC9;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif; }
 
         body {
             min-height: 100vh;
@@ -47,7 +41,6 @@
             border: 1px solid var(--glass-border);
             box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.08);
             padding: 40px;
-            transition: transform 0.3s ease;
         }
 
         .controls-header {
@@ -113,10 +106,6 @@
             box-shadow: 0 4px 15px var(--primary-light);
         }
 
-        .input-section {
-            margin-bottom: 20px;
-        }
-
         textarea {
             width: 100%;
             height: 120px;
@@ -139,8 +128,16 @@
 
         .action-bar {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
             margin-bottom: 12px;
+        }
+
+        .helper-text {
+            font-size: 12px;
+            color: #7a8ba1;
+            opacity: 0.8;
         }
 
         .copy-btn {
@@ -157,14 +154,7 @@
             gap: 6px;
         }
 
-        .copy-btn:hover {
-            filter: brightness(1.05);
-            transform: translateY(-1px);
-        }
-
-        .copy-btn.copied {
-            background: var(--success-color);
-        }
+        .copy-btn.copied { background: var(--success-color); }
 
         .output-section {
             min-height: 250px;
@@ -172,58 +162,44 @@
             border-radius: 20px;
             padding: 30px;
             border: 1px solid var(--glass-border);
-            transition: all 0.3s ease;
         }
 
-        .output-ruby {
-            line-height: 3.5;
-            text-align: left;
-            word-break: break-word;
+        .output-ruby { line-height: 4; text-align: left; word-break: break-word; }
+        .output-ruby ruby { 
+            margin: 0 6px; 
+            font-size: 26px; 
+            position: relative;
+            padding: 2px 4px;
+            border-radius: 6px;
+            -webkit-tap-highlight-color: transparent;
         }
+        .output-ruby rt { font-size: 15px; color: var(--primary-color); font-weight: 600; user-select: none; }
 
-        .output-ruby ruby {
-            ruby-align: center;
-            margin: 0 6px;
-            font-size: 26px;
+        .poly { border-bottom: 2px dashed var(--poly-color); cursor: pointer; }
+        .poly::after {
+            content: attr(data-readings);
+            position: absolute;
+            bottom: 115%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #444;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            z-index: 10;
         }
+        /* 移动端点击显示气泡，PC端悬停显示 */
+        .poly:hover::after, .poly:active::after { opacity: 1; }
 
-        .output-ruby rt {
-            font-size: 15px;
-            color: var(--primary-color);
-            font-weight: 600;
-        }
+        .pinyin-line { font-size: 17px; color: var(--primary-color); font-weight: 600; letter-spacing: 2px; line-height: 1.4; margin-bottom: 6px; }
+        .hanzi-line { font-size: 24px; letter-spacing: 4px; line-height: 1.4; margin-bottom: 25px; }
 
-        .output-split {
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        .pinyin-line {
-            font-size: 17px;
-            color: var(--primary-color);
-            font-weight: 600;
-            letter-spacing: 2px;
-            line-height: 1.4;
-            margin-bottom: 6px;
-            word-break: break-word;
-        }
-
-        .hanzi-line {
-            font-size: 24px;
-            letter-spacing: 4px;
-            line-height: 1.4;
-            color: var(--text-color);
-            word-break: break-word;
-        }
-
-        .placeholder {
-            color: #99aab5;
-            text-align: center;
-            margin-top: 80px;
-            display: block;
-            width: 100%;
-        }
+        .placeholder { color: #99aab5; text-align: center; margin-top: 80px; display: block; width: 100%; }
 
         .info-section {
             margin-top: 30px;
@@ -234,6 +210,7 @@
         details {
             background: rgba(255, 255, 255, 0.3);
             border-radius: 12px;
+            border: 1px solid var(--glass-border);
             overflow: hidden;
             transition: all 0.3s ease;
         }
@@ -245,13 +222,7 @@
             font-size: 14px;
             color: var(--primary-color);
             outline: none;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        summary:hover {
-            background: rgba(255, 255, 255, 0.5);
+            user-select: none;
         }
 
         .details-content {
@@ -262,25 +233,12 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
-        .details-content p {
-            margin-bottom: 8px;
-        }
-
-        .details-content a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .details-content a:hover {
-            text-decoration: underline;
-        }
+        .details-content p { margin-bottom: 10px; }
+        .details-content a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
         
         @media (max-width: 600px) {
             .container { padding: 25px 20px; }
             .controls-header { position: static; justify-content: flex-end; margin-bottom: 10px; }
-            .output-ruby ruby { font-size: 22px; }
-            .hanzi-line { font-size: 20px; }
         }
     </style>
 </head>
@@ -305,44 +263,37 @@
             <button id="btn-mode-ruby" class="mode-btn" onclick="setMode('ruby')">注音模式</button>
         </div>
 
-        <div class="input-section">
-            <textarea id="inputArea" placeholder="在此输入汉字..."></textarea>
-        </div>
+        <textarea id="inputArea" placeholder="在此输入汉字..."></textarea>
 
         <div class="action-bar">
+            <div class="helper-text" id="ui-helper"></div>
             <button id="copyBtn" class="copy-btn" onclick="copyContent()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
                 <span id="ui-copy">复制结果</span>
             </button>
         </div>
 
-        <div id="outputArea" class="output-section">
-            <span class="placeholder" id="ui-placeholder">转换结果将在此实时显示...</span>
-        </div>
+        <div id="outputArea" class="output-section"></div>
 
         <div class="info-section">
             <details>
                 <summary id="ui-faq-title">ℹ️ 关于工具与隐私说明</summary>
                 <div class="details-content" id="ui-faq-content">
-                    <!-- 内容由 JavaScript 填充 -->
+                    <!-- 内容将由 JavaScript 根据语言动态填充 -->
                 </div>
             </details>
         </div>
     </div>
 
-    <!-- 用于复制的隐藏域 -->
-    <textarea id="tempCopyArea" style="position:fixed;top:-9999px;left:-9999px;"></textarea>
-
     <script>
+        const { pinyin } = pinyinPro;
         const inputArea = document.getElementById('inputArea');
         const outputArea = document.getElementById('outputArea');
         const langSelect = document.getElementById('langSelect');
         const copyBtn = document.getElementById('copyBtn');
         const uiCopyText = document.getElementById('ui-copy');
-        const tempCopyArea = document.getElementById('tempCopyArea');
         const faqContent = document.getElementById('ui-faq-content');
+        const uiHelper = document.getElementById('ui-helper');
         
-        const { pinyin } = pinyinPro;
         let currentMode = 'split'; 
         let currentLang = 'zh'; 
 
@@ -355,10 +306,12 @@
                 placeholderOutput: "转换结果将在此实时显示",
                 copy: "复制结果",
                 copied: "已复制！",
+                helper: "注音模式下带有虚线的为多音字",
+                readings: "读法",
                 faqTitle: "ℹ️ 关于工具与隐私说明",
                 faqBody: `
                     <p><strong>分行模式：</strong>拼音和汉字有独立的段落。</p>
-                    <p><strong>注音模式：</strong>拼音会紧贴在每个汉字的正上方。</p>
+                    <p><strong>注音模式：</strong>拼音会紧贴在每个汉字的正上方。点击可以查看多音字的其他读法。</p>
                     <p><strong>数据处理：</strong>不收集任何用户输入的信息。拼音转换逻辑在浏览器本地完成。</p>
                     <p><strong>用户缓存：</strong>仅在浏览器本地缓存你的语言偏好和转换模式。</p>
                     <p><strong>服务器：</strong>部署于 GitHub Pages，无后端服务器。</p>
@@ -373,10 +326,12 @@
                 placeholderOutput: "Results will be displayed here",
                 copy: "Copy",
                 copied: "Copied!",
+                helper: "Dashed lines indicate polyphonic characters",
+                readings: "Readings",
                 faqTitle: "ℹ️ About & Privacy",
                 faqBody: `
                     <p><strong>Split Mode:</strong> Pinyin and Characters in separate paragraphs.</p>
-                    <p><strong>Ruby Mode:</strong> Pinyin appears directly above each character.</p>
+                    <p><strong>Ruby Mode:</strong> Pinyin appears directly above each character. Click to see other readings.</p>
                     <p><strong>Data:</strong> No user input is collected. Logic runs locally in your browser.</p>
                     <p><strong>Cache:</strong> Only language and mode preferences are stored locally.</p>
                     <p><strong>Server:</strong> Hosted on GitHub Pages, no backend server.</p>
@@ -391,10 +346,12 @@
                 placeholderOutput: "I risultati appariranno qui",
                 copy: "Copia",
                 copied: "Copiato!",
+                helper: "Linee tratteggiate indicano caratteri polifonici",
+                readings: "Letture",
                 faqTitle: "ℹ️ Informazioni e Privacy",
                 faqBody: `
                     <p><strong>Modalità Divisa:</strong> Pinyin e caratteri in paragrafi separati.</p>
-                    <p><strong>Modalità Ruby:</strong> Il Pinyin appare sopra ogni carattere.</p>
+                    <p><strong>Modalità Ruby:</strong> Il Pinyin appare sopra ogni carattere. Clicca per vedere altre letture.</p>
                     <p><strong>Dati:</strong> Nessun dato viene raccolto. Tutto avviene localmente.</p>
                     <p><strong>Cache:</strong> Salviamo solo la lingua e la modalità preferite nel browser.</p>
                     <p><strong>Server:</strong> Ospitato su GitHub Pages, nessun server backend.</p>
@@ -414,120 +371,76 @@
             document.getElementById('ui-title').innerText = t.title;
             document.getElementById('btn-mode-ruby').innerText = t.modeRuby;
             document.getElementById('btn-mode-split').innerText = t.modeSplit;
-            document.getElementById('inputArea').placeholder = t.placeholderInput;
+            inputArea.placeholder = t.placeholderInput;
             document.getElementById('ui-faq-title').innerText = t.faqTitle;
             faqContent.innerHTML = t.faqBody;
             uiCopyText.innerText = t.copy;
-            
+            uiHelper.innerText = currentMode === 'ruby' ? t.helper : "";
             updateOutput();
         }
 
         function setMode(mode) {
             currentMode = mode;
             localStorage.setItem('pinyin_mode_pref', mode);
-            
             document.getElementById('btn-mode-ruby').classList.toggle('active', mode === 'ruby');
             document.getElementById('btn-mode-split').classList.toggle('active', mode === 'split');
-            outputArea.className = `output-section output-${mode}`;
+            uiHelper.innerText = mode === 'ruby' ? translations[currentLang].helper : "";
             updateOutput();
         }
 
-        function tokenize(text) {
-            return text.match(/[\u4e00-\u9fa5]|[^\u4e00-\u9fa5]+/g) || [];
+        function getCandidates(char) {
+            return pinyin(char, { multiple: true, toneType: 'symbol', type: 'array' });
         }
 
         function updateOutput() {
-            const text = inputArea.value; 
-            if (!text || text.trim() === "") {
+            const text = inputArea.value.replace(/\s+/g, ' '); 
+            if (!text.trim()) {
                 outputArea.innerHTML = `<span class="placeholder">${translations[currentLang].placeholderOutput}</span>`;
                 return;
             }
-            if (currentMode === 'ruby') renderRuby(text);
-            else renderSplit(text);
-        }
 
-        function renderRuby(text) {
-            const tokens = tokenize(text);
-            let html = '';
-            tokens.forEach(token => {
-                if (/[\u4e00-\u9fa5]/.test(token)) {
-                    const py = pinyin(token, { toneType: 'symbol' });
-                    html += `<ruby>${token}<rt>${py}</rt></ruby>`;
-                } else {
-                    // 正则：连续空格转为单一空格
-                    const cleanedToken = token.replace(/\s+/g, ' ');
-                    html += `<span>${cleanedToken.replace(/\n/g, '<br>')}</span>`;
-                }
-            });
-            outputArea.innerHTML = html;
-        }
+            const pinyinList = pinyin(text, { toneType: 'symbol', type: 'array' });
+            const chars = text.split('');
 
-        function renderSplit(text) {
-            const paragraphs = text.split('\n');
-            let html = '';
-            paragraphs.forEach(para => {
-                if (para === "") { 
-                     html += '<div style="height:1.5em"></div>';
-                     return;
-                }
-                let pl = '', hl = '';
-                const tokens = tokenize(para);
-                tokens.forEach((token) => {
-                    if (/[\u4e00-\u9fa5]/.test(token)) {
-                        const py = pinyin(token, { toneType: 'symbol' });
-                        hl += token;
-                        pl += py + ' ';
+            if (currentMode === 'ruby') {
+                let html = '';
+                chars.forEach((char, i) => {
+                    if (/[\u4e00-\u9fa5]/.test(char)) {
+                        const candidates = getCandidates(char);
+                        const isPoly = candidates.length > 1;
+                        const tip = isPoly ? `data-readings="${translations[currentLang].readings}: ${candidates.join(', ')}"` : '';
+                        html += `<ruby class="${isPoly?'poly':''}" ${tip}>${char}<rt>${pinyinList[i]}</rt></ruby>`;
                     } else {
-                        // 正则：非汉字部分的连续空格转为单一空格
-                        const cleanedToken = token.replace(/\s+/g, ' ');
-                        pl += cleanedToken;
-                        hl += cleanedToken;
+                        html += `<span>${char === ' ' ? '&nbsp;' : char}</span>`;
                     }
                 });
-                // 再次全局清理拼音行的冗余空格
-                const finalPl = pl.replace(/\s+/g, ' ').trim();
-                const finalHl = hl.replace(/\s+/g, ' ').trim();
-                html += `<div class="split-paragraph"><div class="pinyin-line">${finalPl}</div><div class="hanzi-line">${finalHl}</div></div>`;
-            });
-            outputArea.innerHTML = html;
+                outputArea.innerHTML = `<div class="output-ruby">${html}</div>`;
+            } else {
+                let pLine = '', hLine = '';
+                chars.forEach((char, i) => {
+                    if (/[\u4e00-\u9fa5]/.test(char)) {
+                        pLine += pinyinList[i] + ' ';
+                        hLine += char;
+                    } else {
+                        const spaceChar = char === ' ' ? ' ' : char;
+                        pLine += spaceChar;
+                        hLine += spaceChar;
+                    }
+                });
+                outputArea.innerHTML = `<div class="pinyin-line">${pLine.replace(/\s+/g, ' ')}</div><div class="hanzi-line">${hLine}</div>`;
+            }
         }
 
         function copyContent() {
-            const text = inputArea.value;
-            if (!text || text.trim() === "") return;
-            let copyText = "";
-            const tokens = tokenize(text);
-
-            if (currentMode === 'ruby') {
-                tokens.forEach(token => {
-                    if (/[\u4e00-\u9fa5]/.test(token)) {
-                        copyText += `${token}(${pinyin(token, { toneType: 'symbol' })})`;
-                    } else {
-                        copyText += token.replace(/\s+/g, ' ');
-                    }
-                });
-            } else {
-                text.split('\n').forEach(p => {
-                    if (p.trim() === "") return;
-                    let lineP = '', lineH = '';
-                    const pTokens = tokenize(p);
-                    pTokens.forEach((t) => {
-                        if (/[\u4e00-\u9fa5]/.test(t)) { 
-                            lineP += pinyin(t, { toneType: 'symbol' }) + ' ';
-                            lineH += t;
-                        } else { 
-                            const ct = t.replace(/\s+/g, ' ');
-                            lineP += ct; 
-                            lineH += ct; 
-                        }
-                    });
-                    copyText += `${lineP.replace(/\s+/g, ' ').trim()}\n${lineH.replace(/\s+/g, ' ').trim()}\n\n`;
-                });
-            }
-            
-            tempCopyArea.value = copyText.trim();
-            tempCopyArea.select();
+            const text = outputArea.innerText;
+            if (!text.trim()) return;
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
             document.execCommand('copy');
+            document.body.removeChild(el);
+            
             copyBtn.classList.add('copied');
             uiCopyText.innerText = translations[currentLang].copied;
             setTimeout(() => {
@@ -537,16 +450,11 @@
         }
 
         inputArea.addEventListener('input', updateOutput);
-
         window.onload = () => {
-            const savedLang = localStorage.getItem('pinyin_lang_pref') || 'zh';
-            langSelect.value = savedLang;
-            currentLang = savedLang;
-
-            const savedMode = localStorage.getItem('pinyin_mode_pref') || 'split';
-            
+            currentLang = localStorage.getItem('pinyin_lang_pref') || 'zh';
+            langSelect.value = currentLang;
+            setMode(localStorage.getItem('pinyin_mode_pref') || 'split');
             updateUI();
-            setMode(savedMode);
         };
     </script>
 </body>
