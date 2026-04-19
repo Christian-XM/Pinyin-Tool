@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>汉字拼音注音器 - 简洁优雅版</title>
+    <title>汉字注音工具</title>
     <!-- 引入 pinyin-pro 库 -->
     <script src="https://unpkg.com/pinyin-pro"></script>
     <style>
@@ -215,7 +215,6 @@
             width: 100%;
         }
 
-        /* 底部说明分栏样式 */
         .info-section {
             margin-top: 30px;
             border-top: 1px dashed var(--primary-color);
@@ -223,7 +222,6 @@
         }
 
         details {
-            margin-bottom: 10px;
             background: rgba(255, 255, 255, 0.3);
             border-radius: 12px;
             overflow: hidden;
@@ -249,21 +247,23 @@
         .details-content {
             padding: 15px 20px;
             font-size: 13px;
-            line-height: 1.6;
+            line-height: 1.8;
             color: #5a6a85;
             background: rgba(255, 255, 255, 0.2);
         }
 
         .details-content p {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 12px;
-            opacity: 0.5;
-            letter-spacing: 0.5px;
+        .details-content a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .details-content a:hover {
+            text-decoration: underline;
         }
         
         @media (max-width: 600px) {
@@ -309,31 +309,13 @@
             <span class="placeholder" id="ui-placeholder">转换结果将在此实时显示...</span>
         </div>
 
-        <!-- 底部说明区域 -->
         <div class="info-section">
             <details>
-                <summary id="ui-faq-modes">📖 模式说明：分行 vs 注音</summary>
-                <div class="details-content" id="ui-faq-modes-content">
-                    <p><strong>分行模式：</strong>将拼音与汉字完全分离。上方为整行拼音，下方为对应汉字。适合长篇阅读或朗诵练习，视觉上更加整洁。</p>
-                    <p><strong>注音模式：</strong>采用 HTML5 的 Ruby 标签标准。拼音会紧贴在每个汉字的正上方。适合学习生僻字或精细标注，符合字典排版习惯。</p>
+                <summary id="ui-faq-title">ℹ️ 关于工具与隐私说明</summary>
+                <div class="details-content" id="ui-faq-content">
+                    <!-- 内容由 JavaScript 填充 -->
                 </div>
             </details>
-
-            <details>
-                <summary id="ui-faq-privacy">🔒 隐私与安全说明</summary>
-                <div class="details-content" id="ui-faq-privacy-content">
-                    <p><strong>数据处理：</strong>本工具为纯前端应用。所有的汉字转拼音逻辑均通过浏览器本地的 JavaScript (pinyin-pro 库) 完成。<strong>您的任何输入内容都不会上传到服务器。</strong></p>
-                    <p><strong>部署信息：</strong>网站部署于 <strong>GitHub Pages</strong>。GitHub 仅提供静态文件托管，由于本站没有任何后端 API 或数据库，您的隐私在物理架构上是绝对安全的。</p>
-                    <p><strong>缓存说明：</strong>本站仅在您的浏览器 <code>localStorage</code> 中存储以下两项信息，以便下次访问时恢复您的偏好：
-                        <br>1. <code>pinyin_lang_pref</code> (您的界面语言选择)
-                        <br>2. <code>pinyin_mode_pref</code> (您偏好的显示模式)
-                    </p>
-                </div>
-            </details>
-        </div>
-
-        <div class="footer">
-            <span id="ui-footer-text">Serenity 优雅配色注音器</span>
         </div>
     </div>
 
@@ -347,6 +329,7 @@
         const copyBtn = document.getElementById('copyBtn');
         const uiCopyText = document.getElementById('ui-copy');
         const tempCopyArea = document.getElementById('tempCopyArea');
+        const faqContent = document.getElementById('ui-faq-content');
         
         const { pinyin } = pinyinPro;
         let currentMode = 'split'; 
@@ -359,41 +342,53 @@
                 modeSplit: "分行模式",
                 placeholderInput: "在此输入汉字...",
                 placeholderOutput: "转换结果将在此实时显示",
-                footer: "Serenity 优雅配色注音器",
                 copy: "复制结果",
                 copied: "已复制！",
-                faqModes: "📖 模式说明：分行 vs 注音",
-                faqPrivacy: "🔒 隐私与安全说明",
-                faqModesContent: `<p><strong>分行模式：</strong>将拼音与汉字完全分离。上方为整行拼音，下方为对应汉字。适合长篇阅读或朗诵练习。</p><p><strong>注音模式：</strong>拼音会紧贴在每个汉字的正上方。适合学习生僻字或精细标注。</p>`,
-                faqPrivacyContent: `<p><strong>数据处理：</strong>本工具承诺<strong>不收集</strong>任何用户数据。转换逻辑在浏览器本地完成。</p><p><strong>部署信息：</strong>部署于 GitHub Pages，无后端服务器。仅在浏览器本地缓存您的语言偏好和模式选择。</p>`
+                faqTitle: "ℹ️ 关于工具与隐私说明",
+                faqBody: `
+                    <p><strong>分行模式：</strong>拼音和汉字有独立的段落。</p>
+                    <p><strong>注音模式：</strong>拼音会紧贴在每个汉字的正上方。</p>
+                    <p><strong>数据处理：</strong>不收集任何用户输入的信息。拼音转换逻辑在浏览器本地完成。</p>
+                    <p><strong>用户缓存：</strong>仅在浏览器本地缓存你的语言偏好和转换模式。</p>
+                    <p><strong>服务器：</strong>部署于 GitHub Pages，无后端服务器。</p>
+                    <p><strong>项目链接：</strong><a href="https://github.com/Christian-XM/Pinyin-Tool" target="_blank">https://github.com/Christian-XM/Pinyin-Tool</a></p>
+                `
             },
             en: {
-                title: "Chinese Pinyin Tool",
+                title: "Pinyin Tool",
                 modeRuby: "Ruby Mode",
                 modeSplit: "Split Mode",
                 placeholderInput: "Type Chinese here...",
-                placeholderOutput: "Results will be displayed here in real-time",
-                footer: "Elegant Serenity Pinyin Tool",
-                copy: "Copy Result",
+                placeholderOutput: "Results will be displayed here",
+                copy: "Copy",
                 copied: "Copied!",
-                faqModes: "📖 Modes: Split vs Ruby",
-                faqPrivacy: "🔒 Privacy & Security",
-                faqModesContent: `<p><strong>Split Mode:</strong> Separates Pinyin and Characters into different lines. Great for long readings.</p><p><strong>Ruby Mode:</strong> Pinyin is placed directly above each character. Ideal for learning specific words.</p>`,
-                faqPrivacyContent: `<p><strong>Data:</strong> We <strong>DO NOT</strong> collect any data. Processing is done locally in your browser.</p><p><strong>Deployment:</strong> Hosted on GitHub Pages. We only cache your language and mode preferences locally.</p>`
+                faqTitle: "ℹ️ About & Privacy",
+                faqBody: `
+                    <p><strong>Split Mode:</strong> Pinyin and Characters in separate paragraphs.</p>
+                    <p><strong>Ruby Mode:</strong> Pinyin appears directly above each character.</p>
+                    <p><strong>Data:</strong> No user input is collected. Logic runs locally in your browser.</p>
+                    <p><strong>Cache:</strong> Only language and mode preferences are stored locally.</p>
+                    <p><strong>Server:</strong> Hosted on GitHub Pages, no backend server.</p>
+                    <p><strong>Project:</strong> <a href="https://github.com/Christian-XM/Pinyin-Tool" target="_blank">https://github.com/Christian-XM/Pinyin-Tool</a></p>
+                `
             },
             it: {
-                title: "Pinyin Cinese",
+                title: "Strumento Pinyin",
                 modeRuby: "Modalità Ruby",
                 modeSplit: "Modalità Divisa",
                 placeholderInput: "Inserisci caratteri cinesi...",
-                placeholderOutput: "I risultati verranno visualizzati in tempo reale",
-                footer: "Strumento elegante Serenity",
+                placeholderOutput: "I risultati appariranno qui",
                 copy: "Copia",
                 copied: "Copiato!",
-                faqModes: "📖 Modalità: Divisa vs Ruby",
-                faqPrivacy: "🔒 Privacy e Sicurezza",
-                faqModesContent: `<p><strong>Modalità Divisa:</strong> Separa Pinyin e caratteri. Ottimo per letture lunghe.</p><p><strong>Modalità Ruby:</strong> Il Pinyin è posto sopra ogni carattere. Ideale per l'apprendimento.</p>`,
-                faqPrivacyContent: `<p><strong>Dati:</strong> <strong>NON</strong> raccogliamo dati. L'elaborazione avviene localmente nel browser.</p><p><strong>Hosting:</strong> Ospitato su GitHub Pages. Salviamo solo le tue preferenze di lingua e modalità nel browser.</p>`
+                faqTitle: "ℹ️ Informazioni e Privacy",
+                faqBody: `
+                    <p><strong>Modalità Divisa:</strong> Pinyin e caratteri in paragrafi separati.</p>
+                    <p><strong>Modalità Ruby:</strong> Il Pinyin appare sopra ogni carattere.</p>
+                    <p><strong>Dati:</strong> Nessun dato viene raccolto. Tutto avviene localmente.</p>
+                    <p><strong>Cache:</strong> Salviamo solo la lingua e la modalità preferite nel browser.</p>
+                    <p><strong>Server:</strong> Ospitato su GitHub Pages, nessun server backend.</p>
+                    <p><strong>Progetto:</strong> <a href="https://github.com/Christian-XM/Pinyin-Tool" target="_blank">https://github.com/Christian-XM/Pinyin-Tool</a></p>
+                `
             }
         };
 
@@ -409,11 +404,8 @@
             document.getElementById('btn-mode-ruby').innerText = t.modeRuby;
             document.getElementById('btn-mode-split').innerText = t.modeSplit;
             document.getElementById('inputArea').placeholder = t.placeholderInput;
-            document.getElementById('ui-footer-text').innerText = t.footer;
-            document.getElementById('ui-faq-modes').innerText = t.faqModes;
-            document.getElementById('ui-faq-privacy').innerText = t.faqPrivacy;
-            document.getElementById('ui-faq-modes-content').innerHTML = t.faqModesContent;
-            document.getElementById('ui-faq-privacy-content').innerHTML = t.faqPrivacyContent;
+            document.getElementById('ui-faq-title').innerText = t.faqTitle;
+            faqContent.innerHTML = t.faqBody;
             uiCopyText.innerText = t.copy;
             
             updateOutput();
